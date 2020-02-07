@@ -61,7 +61,7 @@ export default {
             this.$message.success("登录成功")
             //1.将登录成功后的token，保存到客户端的sessionStora中
             window.sessionStorage.setItem("token",res.data.token);
-            //2.通过编程式导航跳转到后台主页
+            //2.通过编程式导航跳转到登录后主页
             this.$router.push('./home')
         });
     }               
