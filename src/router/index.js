@@ -2,6 +2,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
+import Devices from "../components/Devices/Devices.vue"
+import Devices_ios from "../components/Devices/Devices_ios.vue"
+import Devices_Android from "../components/Devices/Devices_Android.vue"
+import user from "../components/user/user.vue"
 
 Vue.use(VueRouter)
 const routes = [
@@ -15,7 +19,14 @@ const routes = [
   },
   {
     path: '/home',
-    component: Home
+    component: Home,
+    redirect:'/devices',
+    children:[
+        {path:'/devices',component:Devices},
+        { path: '/user', component: user },
+        { path: '/devices_ios', component: Devices_ios },
+        { path: '/devices_android', component: Devices_Android }
+    ]
   }
 ]
 

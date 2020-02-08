@@ -13,7 +13,7 @@
 			<!-- 侧边栏 -->
 			<el-aside :width="isCollapse ? '64px' : '200px'">
 				<!--折叠按钮 -->
-				<div class="toggle-button" @click="toggleCollapse">折叠</div>
+				<div class="toggle-button" @click="toggleCollapse">点击折叠</div>
 				<!-- 侧边栏菜单区域 -->
 				<el-menu
 					background-color="#333744"
@@ -21,40 +21,44 @@
 					active-text-color="#409EFF"
 					unique-opened
 					:collapse="isCollapse"
-					:collapse-transition="false"
-					router
+                    :collapse-transition="false"
+                    router="true"
 				>
 					<!-- 一级菜单 -->
-					<el-submenu :index="devices+''">
+					<el-submenu :index="item.id.toString()" v-for="item in menulist" :key="item.id">
 						<!-- 一级菜单模板区 -->
 						<template slot="title">
 							<!-- 图标 -->
-							<i class="el-icon-mobile"></i>
+							<i :class="iconsObj[item.id]"></i>
 							<!-- 文本 -->
+							<span>{{item.authName}}</span>
 							<!-- 实际文本 -->
-							<span>设备列表</span>
+							<!-- <span>设备列表</span> -->
 						</template>
 						<!-- 二级菜单 -->
+						<el-menu-item
+							:index="subItem.id.toString()"
+							v-for="subItem in item.children"
+							:key="subItem.id"
+						>
+							<!-- 二级菜单模板区 -->
+							<template slot="title">
+								<!-- 图标 -->
+								<i class="el-icon-menu"></i>
+								<!-- 文本 -->
+								<span>{{subItem.authName}}</span>
+								<!-- <span>设备列表</span> -->
+							</template>
+						</el-menu-item>
 						<!-- 实际列表 -->
-						<el-menu-item index="devices">所有设备</el-menu-item>
-						<el-menu-item index="devices_ios">
-                            <template slot="title">
-							<i class="el-icon-apple"></i>
-							<span>ios</span>
-                            </template>
-                        </el-menu-item>
-						<el-menu-item index="devices_android">
-                            <template slot="title">
-							<i class="el-icon-mobile-phone"></i>
-							<span>Android</span>
-                            </template>
-                        </el-menu-item>
+						<!-- <el-menu-item index="1-2">ios</el-menu-item>
+						<el-menu-item index="1-2">Android</el-menu-item>-->
 					</el-submenu>
-					<el-menu-item index="user">
+					<!-- <el-menu-item index="2">
 						<i class="el-icon-menu"></i>
 						<span slot="title">个人借用</span>
 					</el-menu-item>
-					<!-- <el-menu-item index="4">
+					<el-menu-item index="4">
 						<i class="el-icon-setting"></i>
 						<span slot="title">设备管理</span>
 					</el-menu-item>-->
@@ -62,9 +66,9 @@
 			</el-aside>
 			<!-- 内容主体区 -->
 			<el-main>
-				<!-- 路由占位符 -->
-				<router-view></router-view>
-			</el-main>
+                <!-- 路由占位符 -->
+                <router-view></router-view>
+            </el-main>
 		</el-container>
 	</el-container>
 </template>
@@ -74,22 +78,21 @@ export default {
 	data() {
 		return {
 			//左侧菜单数据
-			menulist: [],
-			iconsObj: {
-				"125": "iconfont icon-user",
-				"103": "iconfont icon-tijikongjian",
-				"101": "iconfont icon-shangpin",
-				"102": "iconfont icon-danju",
-				"145": "iconfont icon-baobiao"
-			},
-			//是否折叠
-            isCollapse: false,
-            devices:[]
+            menulist: [],
+            iconsObj:{
+                '125':'iconfont icon-user',
+                '103':'iconfont icon-tijikongjian',
+                '101':'iconfont icon-shangpin',
+                '102':'iconfont icon-danju',
+                '145': 'iconfont icon-baobiao'
+            }, 
+            //是否折叠
+            isCollapse:false
 		};
 	},
 	created() {
-		this.getMenulist();
-	},
+        this.getMenulist();
+    },
 	methods: {
 		logout() {
 			// 清除token值
@@ -103,11 +106,11 @@ export default {
 			if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
 			this.menulist = res.data;
 			console.log(res);
-		},
-		//点击按钮切换折叠菜单
-		toggleCollapse() {
-			this.isCollapse = !this.isCollapse;
-		}
+        },
+        //点击按钮切换折叠菜单
+        toggleCollapse(){ 
+            this.isCollapse = !this.isCollapse
+        }
 	}
 };
 </script>
@@ -123,7 +126,7 @@ export default {
 	padding-left: 0px;
 	align-items: center;
 	color: #fff;
-	font-size: 18px;
+	font-size: 20px;
 	font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
 	> div {
 		display: flex;
@@ -133,8 +136,8 @@ export default {
 			margin-left: -12px;
 		}
 		img {
-			width: 170px;
-			margin-left: -10px;
+			width: 200px;
+			margin-left: -15px;
 			margin-top: 10px;
 		}
 	}
@@ -157,6 +160,6 @@ export default {
 	line-height: 20px;
 	text-align: center;
 	color: white;
-	cursor: pointer;
+    cursor: pointer;
 }
 </style>
