@@ -6,7 +6,10 @@
 				<img src="../assets/image/testcenter.png" alt />
 				<span>设备借用平台</span>
 			</div>
-			<el-button type="info" @click="logout">退出</el-button>
+			<el-row>
+				<el-button type="success" style="margin-right:0px" @click="setemail">绑定邮箱</el-button>
+				<el-button type="info" @click="logout">退出</el-button>
+			</el-row>
 		</el-header>
 		<!-- 页面主体区 -->
 		<el-container>
@@ -38,17 +41,17 @@
 						<!-- 实际列表 -->
 						<el-menu-item index="devices">所有设备</el-menu-item>
 						<el-menu-item index="devices_ios">
-                            <template slot="title">
-							<i class="el-icon-apple"></i>
-							<span>ios</span>
-                            </template>
-                        </el-menu-item>
+							<template slot="title">
+								<i class="el-icon-apple"></i>
+								<span>ios</span>
+							</template>
+						</el-menu-item>
 						<el-menu-item index="devices_android">
-                            <template slot="title">
-							<i class="el-icon-mobile-phone"></i>
-							<span>Android</span>
-                            </template>
-                        </el-menu-item>
+							<template slot="title">
+								<i class="el-icon-mobile-phone"></i>
+								<span>Android</span>
+							</template>
+						</el-menu-item>
 					</el-submenu>
 					<el-menu-item index="user">
 						<i class="el-icon-menu"></i>
@@ -66,6 +69,20 @@
 				<router-view></router-view>
 			</el-main>
 		</el-container>
+        <!-- 申请页面弹出 -->
+		<el-dialog title="绑定邮箱" :visible.sync="showEmailDialog">
+			<!-- 内容主体区 -->
+			<el-form >
+				<el-form-item label="输入热聊邮箱" :label-width="formLabelWidth">
+					<el-input v-model="Email" ></el-input>
+				</el-form-item>
+			</el-form>
+			<!-- 底部区 -->
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="showEmailDialog = false">取 消</el-button>
+				<el-button type="primary" @click="setEmail">确 定</el-button>
+			</div>
+		</el-dialog>
 	</el-container>
 </template>
 
@@ -83,12 +100,18 @@ export default {
 				"145": "iconfont icon-baobiao"
 			},
 			//是否折叠
-            isCollapse: false,
-            devices:[]
+			isCollapse: false,
+            devices: [],
+            // 邮箱
+            Email:"",
+            showEmailDialog: false, 
+            formLabelWidth:"100px",
+            userid:'',
+            
 		};
 	},
 	created() {
-		this.getMenulist();
+		// this.getMenulist();
 	},
 	methods: {
 		logout() {
@@ -98,16 +121,37 @@ export default {
 			this.$router.push("/login");
 		},
 		//获取所用菜单,动态渲染菜单列表
-		async getMenulist() {
-			const { data: res } = await this.$http.get("menus");
-			if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
-			this.menulist = res.data;
-			console.log(res);
-		},
+		// async getMenulist() {
+		// 	const { data: res } = await this.$http.get("menus");
+		// 	if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
+		// 	this.menulist = res.data;
+		// 	console.log(res);
+		// },
 		//点击按钮切换折叠菜单
 		toggleCollapse() {
 			this.isCollapse = !this.isCollapse;
-		}
+        },
+        //绑定邮箱按钮事件
+        setemail(){
+            this.showEmailDialog = true
+        },
+        //提交邮箱
+        async setEmail(){
+            // console.log(this.userid = "9527",this.Email)
+            // 向后台提交， this.Email，
+            // 从session中获取userid
+            this.userid = window.sessionStorage.getItem(data,{user_id})
+            const {data:res} = await this.$http.post('user',{
+                userid: this.userid,
+                email: this.Email
+            })
+            if(res.meta.status !==200){
+                return this.$message.error('绑定失败');   
+            }
+            // 关闭申请框
+            this.showEmailDialog = false
+            this.$message.success('绑定成功')
+        }
 	}
 };
 </script>

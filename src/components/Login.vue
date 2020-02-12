@@ -54,13 +54,17 @@ export default {
             //登录前预验证
             if(!valid) return;
             //登录接口验证
-            const {data:res} = await this.$http.post("login",this.loginForm);   //await同，且必须放在async中
+            const {data:res} = await this.$http.post("login",this.loginForm);   //await使用时，必须放在async中
             // console.log(res);
             //测试账号admin 123456
             if(res.meta.status !=200) return this.$message.error('登录失败，账户或密码错误')
             this.$message.success("登录成功")
-            //1.将登录成功后的token，保存到客户端的sessionStora中
+            //1.将登录成功后的token，保存到客户端的sessionStorage中
             window.sessionStorage.setItem("token",res.data.token);
+            //1-1 将登录成功后的session，保存到sessionStorage中
+                // 将session接收数据解析成JSON字符串
+            // var d = JSON.stringify(res.data[0])
+            // window.sessionStorage.setItem("data",d);
             //2.通过编程式导航跳转到登录后主页
             this.$router.push('./home')
         });
