@@ -19,13 +19,19 @@
             <el-form-item label="品牌">
                 <el-input v-model="AddNewDevices.brand"  style="width:15%"></el-input>
             </el-form-item>
-            <el-form-item label="处理器">
+            <el-form-item label="CPU">
                 <el-input v-model="AddNewDevices.cpu"  style="width:15%"></el-input>
             </el-form-item>
-            <el-form-item label="GPU">
+            <!-- <el-form-item label="GPU">
                 <el-input v-model="AddNewDevices.gpu"  style="width:15%"></el-input>
-            </el-form-item>
-            <el-form-item label="系统">
+            </el-form-item> -->
+            <el-form-item label="操作系统">
+              <el-select v-model="AddNewDevices.platform" placeholder="请选择系统">
+                  <el-option label="Android" value="2"></el-option>
+                  <el-option label="IOS" value="1"></el-option>
+                </el-select>
+            </el-form-item>   
+            <el-form-item label="系统版本">
                 <el-input v-model="AddNewDevices.system"  style="width:15%"></el-input>
             </el-form-item>
             <el-form-item label="分辨率">
@@ -33,22 +39,18 @@
             </el-form-item>
             <el-form-item label="屏幕类型">
                   <el-select v-model="AddNewDevices.screen" placeholder="请选择屏幕类型">
-                    <el-option label="水滴屏" value="水滴屏"></el-option>
-                    <el-option label="曲面屏" value="曲面屏"></el-option>
-                    <el-option label="普通屏" value="普通屏"></el-option>
-                    <el-option label="刘海屏" value="刘海屏"></el-option>
-                    <el-option label="全面屏" value="全面屏"></el-option>
+                    <el-option label="水滴屏" value="3"></el-option>
+                    <el-option label="曲面屏" value="1"></el-option>
+                    <el-option label="普通屏" value="0"></el-option>
+                    <el-option label="刘海屏" value="2"></el-option>
+                    <el-option label="全面屏" value="5"></el-option>
+                    <el-option label="针孔屏" value="4"></el-option>
+                    <el-option label="折叠屏" value="6"></el-option>
                     </el-select>
             </el-form-item>
             <el-form-item label="运行内存">
                 <el-input v-model="AddNewDevices.ram"  style="width:15%"></el-input>
-            </el-form-item>
-            <el-form-item label="平台">
-                <el-select v-model="AddNewDevices.platform" placeholder="请选择平台">
-                    <el-option label="Android" value="android"></el-option>
-                    <el-option label="ios" value="ios"></el-option>
-                    </el-select>
-            </el-form-item>                              
+            </el-form-item>                           
             <div style="text-align:center">
                 <el-button type="primary"  @click="submitForm">提交</el-button>
                 <el-button type="primary"  @click="rest">重置</el-button>
@@ -84,7 +86,7 @@ export default {
   methods: {
     // 后台获取个人借用信息
     async submitForm() {
-      const { data: res } = await this.$http.get("equip_add", {
+      const { data: res } = await this.$http.get("approval_equip_add", {
         params: this.AddNewDevices
       });
 			if (res.meta.status !== 200) {

@@ -7,8 +7,8 @@
 				<span>管理员</span>
 			</div>
 			<el-row>
-				<el-button type="success" @click="outputInfo">导出设备信息</el-button>
-				<el-button type="info" @click="logout">退出</el-button>
+				<el-button type="success" @click="SelectOutType">导出设备信息</el-button>
+				<!-- <el-button type="info" @click="logout">退出</el-button> -->
 			</el-row>
 		</el-header>
 		<!-- 页面主体区 -->
@@ -82,6 +82,13 @@
 				<router-view></router-view>
 			</el-main>
 		</el-container>
+		<el-dialog title="选择导出信息" :visible.sync="outDialog" >
+			<div style="margin-left:30%">
+			<el-button type="primary" @click="outputInfo('')">全部</el-button>
+			<el-button type="primary"  @click="outputInfo(2)">安卓</el-button>
+			<el-button type="primary"  @click="outputInfo(1)">ios</el-button>
+			</div>
+		</el-dialog>
 	</el-container>
 </template>
 
@@ -113,15 +120,14 @@ export default {
 			firstlogin: false,
 			DevicesList: [],
 			queryInfo: {
-				query: "",
-				pagenum: 1,
-				pagesize: 300,
-                list_type: "",
+                type: "",
 			},
+			list:[],
+			outDialog:false,
 		};
 	},
 	created() {
-		this.getDevicesList()
+		//this.getDevicesList()
 	},
 	methods: {
 		logout() {
@@ -138,31 +144,56 @@ export default {
 		// 获取设备信息
 		async getDevicesList() {
 			// 获取设备信息、每条显示数、每页显示数
-			const { data: res } = await this.$http.get("equip_list", {
-				params: this.queryInfo
-			});
+			const { data: res } = await this.$http.get("all_equip_info",{params: this.queryInfo});
 			if (res.meta.status !== 200) {
 				return this.$message.error("获取设备列表失败");
 			}
-			// 后台获取的设备列表渲染到前台
-			this.DevicesList = res.data.dict.list;
+			this.DevicesList = res.data.dict;
+			this.list = this.DevicesList.list
+			return this.DevicesList;
+		},
+		// 打开选择导出的类型
+		SelectOutType(){
+			this.outDialog = true;
 		},
 		// 导出表格
-		outputInfo(){
-　　　　　　 require.ensure([], () => {
-    　　　　　　　　const { export_json_to_excel } = require('../vendors/Export2Excel');
-    　　　　　　　　const tHeader = ["设备编号","设备名称","设备状态","借用人"];//表头
-    　　　　　　　　const filterVal = ["title","name","state","user_name"] //所需显示对应的字段
-    　　　　　　　　const list = this.DevicesList;
-    　　　　　　　　const data = this.formatJson(filterVal, list);
-    　　　　　　　　export_json_to_excel(tHeader, data, '本月设备信息汇总');
-	　　　　　　})
-			// this.$message.error("此功能暂未添加")
+		outputInfo(type){
+			this.DevicesList=[];
+			this.queryInfo.type = type;
+			let name ;
+			if(type==1){
+				name = "ios"
+			}else if(type==2){
+				name = "Android"
+			}else{
+				name="全部"
+			}
+			require.ensure([], async() => {
+				const { export_json_to_excel } = require('../vendors/Export2Excel');
+				const { data: res } = await this.$http.get("all_equip_info",{params: this.queryInfo});
+				if (res.meta.status !== 200) {
+					return this.$message.error("获取设备列表失败");
+				}
+				this.DevicesList = res.data.dict;
+				this.list = this.DevicesList.list
+				//console.log(this.DevicesList)
+				var DevicesTotal = "设备总数 :  "+(String)(this.DevicesList.count_num);
+				var LendTotal = "借出数量:  "+(String)(this.DevicesList.lend_num);
+				var Stock = "在库数量:  "+(String)(this.DevicesList.stock_num);
+				var a = parseFloat(this.DevicesList.lend_num)
+				var b = parseFloat(this.DevicesList.count_num)
+				var borrowrate = "借用率:  "+(String)((a/b).toFixed(2)*100+"%")
+				const tHeader = ["设备编号","品牌","设备名称","内存","设备状态","借用人",DevicesTotal,LendTotal,Stock,borrowrate];//表头
+				const filterVal = ["title","brand","name","ram","state","user_name"] //所需显示对应的字段
+				const list1 =this.list
+				const data = this.formatJson(filterVal, list1);
+				export_json_to_excel(tHeader, data, '本月'+name+'设备信息汇总');
+			})	
 		},
+
 　　　　 formatJson(filterVal, jsonData) {
 　　　　　　return jsonData.map(v => filterVal.map(j => v[j]))
     　　　}
-
 	}
 };
 </script>

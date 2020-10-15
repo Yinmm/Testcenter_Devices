@@ -52,13 +52,17 @@
                     <template slot-scope="scope">
 						<!-- {{scope.row}} -->
                          <div style="display:flex;">
-						<el-button type="success" round v-if="scope.row.state==='待审核'" size="small" plain @click="MakeSureBorrow(scope.row.pk,true)" style="margin-left:15px">通过</el-button>
-                        <el-button type="danger" round v-if="scope.row.state==='待审核'" size="small" plain @click="MakeSureBorrow(scope.row.pk,false)">不通过</el-button>
+						    <el-button type="success" round v-if="scope.row.state==='待审核'" size="small" plain @click="MakeSureBorrow(scope.row.pk,true)" style="margin-left:15px" :disabled="isDisabled">通过</el-button>
+                        <el-button type="danger" round v-if="scope.row.state==='待审核'" size="small" plain @click="MakeSureBorrow(scope.row.pk,false)" :disabled="isDisabled">不通过</el-button>
                          </div>
                         <div style="display:flex">
-						    <el-button type="success" round v-if="scope.row.state==='借用中'" size="small" plain @click="MakeSureBacked(scope.row.pk)">确认归还</el-button>
-                            <el-button type="primary" round v-if="scope.row.state==='借用中'" size="small" plain @click="Remind(scope.row.pk)">提示归还</el-button>
+                                <el-button type="success" round v-if="scope.row.state==='借用中'" size="small" plain @click="MakeSureBacked(scope.row.pk)" :disabled="isDisabled">确认归还</el-button>  
+                            <el-button type="primary" round v-if="scope.row.state==='借用中'" size="small" plain @click="Remind(scope.row.pk)" :disabled="isDisabled">提示归还</el-button>
                         </div>
+                        <div style="display:flex">
+                                <el-button type="success" round v-if="scope.row.state==='待归还'" size="small" plain @click="MakeSureBacked(scope.row.pk)" :disabled="isDisabled">确认归还</el-button>  
+                            <el-button type="primary" round v-if="scope.row.state==='待归还'" size="small" plain @click="Remind(scope.row.pk)" :disabled="isDisabled">提示归还</el-button>
+                        </div>                        
 					</template>
                 </el-table-column>
             </el-table>
@@ -85,6 +89,7 @@ export default {
                 department:"",
                 local:''
             }],
+            isDisabled:false,
             // userinfo:[]
 		};
     },
@@ -124,13 +129,13 @@ export default {
             }
             this.$message.success("已取消锁定");
         },
-        // 取消锁定
         search(){
             this.getborrowlist()
         },
         // 提醒归还
         async Remind(key){
             // var id=key
+            this.timeDelay();
             var id ={"id":key}
             const {data:res} = await this.$http.get("tip_return_one",{
                 params:id
@@ -141,30 +146,71 @@ export default {
             this.getborrowlist();
             this.$message.success("已提醒该借用人");             
         },            
-        // 审批
-        async MakeSureBorrow(pk,i){
-            this.check.id = pk;
-            this.check.ispass = i;
-            const {data:res} = await this.$http.get("approval",{
-                params:this.check
-            });
-            if (res.meta.status !== 200) {
-				return this.$message.error(res.meta.msg);
-            }
-            this.getborrowlist();
-            this.$message.success("操作成功");             
+        // 点击延时
+        timeDelay(){
+			const Time_count = 2
+			if(!this.timer){
+				this.count =Time_count;
+				this.isDisabled =true
+				this.timer = setInterval(()=>{
+					if(this.count>0 && this.count <=Time_count){
+						this.count--;
+					}else{
+						this.isDisabled = false
+						clearInterval(this.timer)
+						this.timer =null;
+					}
+				},1000)
+			}
+		},
+        // 审批是否通过
+        MakeSureBorrow(pk,i){
+            this.$confirm("请确认操作",'提示',{
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                center: true
+                }).then( async () => {
+                    this.check.id = pk;
+                    this.check.ispass = i;
+                    const {data:res} = await this.$http.get("approval",{
+                        params:this.check
+                    });
+                    if (res.meta.status !== 200) {
+                        return this.$message.error(res.meta.msg);
+                    }
+                    this.getborrowlist();
+                    this.$message.success("操作成功");    
+                 }).catch(() => {
+                return this.$message({
+                    type: 'info',
+                    message: '已取消操作'
+                }); 
+            });                                 
         },
         // 确认归还
-        async MakeSureBacked(key){
-            var id ={"id":key}
-            const {data:res} = await this.$http.get("do_return",{
-                params:id
-            });
-            if (res.meta.status !== 200) {
-				return this.$message.error(res.meta.msg);
-            }
-            this.getborrowlist();
-            this.$message.success("确认归还成功");   
+        MakeSureBacked(key){
+            this.$confirm("请确认设备是否已归还",'提示',{
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                center: true
+                }).then( async () => {
+                    var id ={"id":key}
+                    const {data:res} = await this.$http.get("approval_do_return",{
+                    params:id
+                    });
+                    if (res.meta.status !== 200) {
+				        return this.$message.error(res.meta.msg);
+                    }
+                    this.getborrowlist();
+                    this.$message.success("确认归还成功"); 
+                }).catch(() => {
+                return this.$message({
+                    type: 'info',
+                    message: '已取消操作'
+                });
+            });  
         },
         // 提醒所有归还
         async RemindAll(){
@@ -184,11 +230,11 @@ export default {
 				return this.$message.error(res.meta.msg);
             }
             // this.userinfo =  res.data.dict.equipment.fields
-            this.userinfo[0].user_name = res.data.dict.equipment.fields.name
-            this.userinfo[0]. phone = res.data.dict.equipment.fields. phone
-            this.userinfo[0].group = res.data.dict.equipment.fields.group
-            this.userinfo[0].department = res.data.dict.equipment.fields.department
-            this.userinfo[0].local = res.data.dict.equipment.fields.local
+            this.userinfo[0].user_name = res.data.dict.u_name
+            this.userinfo[0].phone = res.data.dict.phone
+            this.userinfo[0].group = res.data.dict.group
+            this.userinfo[0].department = res.data.dict.department
+            this.userinfo[0].local = res.data.dict.local
            
         },
         getuserinfo(){

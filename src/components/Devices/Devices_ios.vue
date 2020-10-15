@@ -48,8 +48,8 @@
 						<el-tag type="warning" round v-if="scope.row.state==='审批中'" effect="plain">审批中</el-tag>
 						<el-tag type="danger" round v-if="scope.row.state==='锁定中'" effect="plain">锁定中</el-tag>
 					</template></el-table-column>
-				<el-table-column prop="user_name" label="借用人" sortable align="center"></el-table-column>
-				<el-table-column label="申请借用" align="center">
+				<el-table-column prop="user_name" label="借用人"  sortable align="center"></el-table-column>
+				<el-table-column label="申请借用" width="125" align="center">
 					<template slot-scope="scope">
 						<!-- {{scope.row}} -->
 						<el-button type="primary" round v-if="scope.row.state==='在库'" @click="showSupplyDilog1(scope.row.id)">申请</el-button>
@@ -91,7 +91,7 @@
 			<!-- 底部区 -->
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="AddSupplyDialog1 = false">取 消</el-button>
-				<el-button type="primary" @click="Supply">确 定</el-button>
+				<el-button type="primary" @click="Supply" :disabled="isDisabled">确 定</el-button>
 			</div>
 			<!-- 紧急借用申请弹窗 -->
 		</el-dialog>
@@ -119,7 +119,7 @@
 			<!-- 底部区 -->
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="AddSupplyDialog2 = false">取 消</el-button>
-				<el-button type="primary" @click="mergeSupply">确 定</el-button>
+				<el-button type="primary" @click="mergeSupply"  :disabled="isDisabled">确 定</el-button>
 			</div>
 		</el-dialog>
 	</div>
@@ -166,6 +166,7 @@ export default {
             // DateRules:{
             //     date:{ validator: checkdate, trigger: 'blur' }
 			// }
+			isDisabled:false
         }
 	},
 	created() {
@@ -208,19 +209,37 @@ export default {
 			this.supplyform.reason = ''
 			// console.log(DevicesId)
 			this.supplyform.deviceid = DeviceId;
-			this.supplyform.email = window.sessionStorage.getItem("email");
+			this.supplyform.email = this.$cookies.get("email");
+		},
+		// 按钮延时
+		timeDelay(){
+			const Time_count = 5
+			if(!this.timer){
+				this.count =Time_count;
+				this.isDisabled =true
+				this.timer = setInterval(()=>{
+					if(this.count>0 && this.count <=Time_count){
+						this.count--;
+					}else{
+						this.isDisabled = false
+						clearInterval(this.timer)
+						this.timer =null;
+					}
+				},1000)
+			}
 		},
 		// 显示紧急申请栏，并获取到设备id，用户邮箱
 		showSupplyDilog2(DeviceId) {
 			this.AddSupplyDialog2 = true;
 			// console.log(DevicesId)
 			this.supplyform.deviceid = DeviceId;
-			this.supplyform.email = window.sessionStorage.getItem("email");
+			this.supplyform.email = this.$cookies.get("email");
 		},
 		//进行提交申请
-		async Supply(formname) {
+		async Supply() {
+			this.timeDelay();
 			//接口提交申请信息 
-			this.supplyform.userid = window.sessionStorage.getItem('userid')
+			// this.supplyform.userid = window.sessionStorage.getItem('userid')
             const {data:res} = await this.$http.get("borrow_apply",{
 				params: this.supplyform
             });
@@ -236,7 +255,8 @@ export default {
             
 		},
 		// 紧急借用
-		async mergeSupply(formname) {
+		async mergeSupply() {
+			this.timeDelay();
 			const { data: res } = await this.$http.get("borrow_apply", {
 				params: this.supplyform
 			});

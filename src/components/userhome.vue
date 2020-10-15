@@ -4,11 +4,12 @@
 		<el-header>
 			<div>
 				<img src="../assets/image/testcenter.png" alt />
-				<span>设备借用平台</span>
+				<el-button type="text" style="float:left;font-size:18px;margin-top:10px;margin-left:-10px" disabled>设备借用平台</el-button>
+             	<el-button type="text" style="float:left;font-size:18px;margin-top:10px" @click="switchData">测试数据平台</el-button>
 			</div>
 			<el-row>
 				<el-button type="success" style="margin-right:0px" @click="userinfo" >个人资料修改</el-button>
-				<el-button type="info" @click="logout">退出</el-button>
+				<!-- <el-button type="info" @click="logout">退出</el-button> -->
 			</el-row>
 		</el-header>
 		<!-- 页面主体区 -->
@@ -115,6 +116,9 @@
 				<el-form-item label="输入验证码" :label-width="formLabelWidth" prop="emailcode">
 					<el-input v-model="UserInfo.emailcode" maxlength="6"  show-word-limit style="width:150px;"></el-input>
 				</el-form-item>
+				<el-form-item label="输入姓名" :label-width="formLabelWidth" prop="u_name">
+					<el-input v-model="UserInfo.u_name" maxlength="6"  placeholder='请输入jira账号对应的用户姓名' ></el-input>
+				</el-form-item>
 				<el-form-item label="所属部门" :label-width="formLabelWidth" prop="group">
 					<el-input v-model="UserInfo.group" placeholder='请输入所在部门' ></el-input>
 				</el-form-item>
@@ -188,6 +192,7 @@ export default {
             devices: [],
             // 个人信息:邮箱,部门，项目组，座位号，工号，手机号
             UserInfo:{
+				u_name:'',
 				email:"",
 				emailcode:"",
                 group:"",
@@ -211,6 +216,9 @@ export default {
 				],
 				emailcode:[
 					{ required: true, message:"请输入邮箱验证码",trigger: 'blur' }
+				],
+				u_name:[
+					{required:true,message:"请输入jira账号用户姓名",trigger:'blur'}
 				],
 				group:[
 					{required:true,message:"请输入部门",trigger:'blur'}
@@ -238,6 +246,10 @@ export default {
 
 	},
 	methods: {
+		switchData(){
+        var url = "http://10.0.10.246:8093/client_report"
+        window.open(url)
+    	},
 		logout() {
 			// 清除token值
 			window.sessionStorage.clear();
@@ -261,12 +273,13 @@ export default {
 			this.showuserinfoDialog = true
         },
         getuserinfo(){
-            this.UserInfo.email = window.sessionStorage.getItem("email")
-            this.UserInfo.group = window.sessionStorage.getItem("group")
-			this.UserInfo.local = window.sessionStorage.getItem("local")
-			this.UserInfo.program = window.sessionStorage.getItem("dep")
-			this.UserInfo.workid = window.sessionStorage.getItem("job_number")
-			this.UserInfo.phone = window.sessionStorage.getItem("phone")
+			// this.UserInfo.email = window.sessionStorage.getItem("email")
+			this.UserInfo.email = this.$cookies.get("email")
+            this.UserInfo.group = window.localStorage.getItem("group")
+			this.UserInfo.local = window.localStorage.getItem("local")
+			this.UserInfo.program = window.localStorage.getItem("dep")
+			this.UserInfo.workid = window.localStorage.getItem("job_number")
+			this.UserInfo.phone = window.localStorage.getItem("phone")
 			if(this.UserInfo.email =="null"){
 				this.UserInfo.email = ''
 				this.UserInfo.group =''
@@ -278,29 +291,31 @@ export default {
 		},
 		//获取邮箱验证码
 		async getEmailCode(){
-			const Time_count = 60
-			if(!this.timer){
-				this.count =Time_count;
-				this.show =false
-				this.timer = setInterval(()=>{
-					if(this.count>0 && this.count <=Time_count){
-						this.count--;
-					}else{
-						this.show = true
-						clearInterval(this.timer)
-						this.timer =null;
-					}
-				},1000)
-			}
+			const Time_count = 60	
 			var email={email:this.UserInfo.email}
 			const {data:res} = await this.$http.get('get_emailcode',{ 
 				params:email 
 			})
 			if(res.meta.status ==200){
 				//更新token 
-				window.sessionStorage.removeItem("token");
-				window.sessionStorage.setItem("token",res.data.dict.token);
+				// window.sessionStorage.removeItem("token");
+				// window.sessionStorage.setItem("token",res.data.dict.token);
+				if(!this.timer){
+					this.count =Time_count;
+					this.show =false
+					this.timer = setInterval(()=>{
+						if(this.count>0 && this.count <=Time_count){
+							this.count--;
+						}else{
+							this.show = true
+							clearInterval(this.timer)
+							this.timer =null;
+						}
+					},1000)
+				}
 				return this.$message.success("发送成功")
+			}else{
+				return this.$message.error(res.meta.msg)
 			}
 		},
         // test1(){
@@ -322,12 +337,13 @@ export default {
 				this.showuserinfoDialogmerge = false
 				this.$message.success(res.meta.msg)
 				// 将修改后的个人信息存储到本地
-				window.sessionStorage.setItem("email",this.UserInfo.email)
-				window.sessionStorage.setItem("group",this.UserInfo.group)
-				window.sessionStorage.setItem("local",this.UserInfo.local)
-				window.sessionStorage.setItem("program",this.UserInfo.program)
-				window.sessionStorage.setItem("workid",this.UserInfo.workid)
-				window.sessionStorage.setItem("phone",this.UserInfo.phone)
+				this.$cookies.set("email",res.data.dict.email,"7d")
+				window.localStorage.setItem("email",this.UserInfo.email)
+				window.localStorage.setItem("group",this.UserInfo.group)
+				window.localStorage.setItem("local",this.UserInfo.local)
+				window.localStorage.setItem("program",this.UserInfo.program)
+				window.localStorage.setItem("workid",this.UserInfo.workid)
+				window.localStorage.setItem("phone",this.UserInfo.phone)
 				this.Userinfo.emailcode = ''
 			});
         },
@@ -335,7 +351,7 @@ export default {
         isfirst(){
             // var test = false
 			// this.firstlogin = test
-			if(window.sessionStorage.getItem("email")=="null"){
+			if(!this.$cookies.get("email") ||this.$cookies.get("email")=="null"|| window.localStorage.getItem("email")=="null"){
 				this.showuserinfoDialogmerge = true
 			}
         }

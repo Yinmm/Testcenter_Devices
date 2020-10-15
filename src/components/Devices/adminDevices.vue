@@ -24,9 +24,10 @@
 					<el-button  id='showinfo' round plain type="info" @click="showAllinfo" style="margin-right:0px" size="mini">显示设备所有信息</el-button>
 				</el-row>
 			</div>
-			<!-- 设备筛选区 1-->
-			<el-collapse v-model="activenames">
-				<el-collapse-item title="设备筛选 :" name ="1">
+		<!-- 设备筛选区 1-->
+			<el-collapse v-model="activenames" >
+				<!-- 默认关闭，打开在el-collapse-item 加上 name = "1" -->
+				<el-collapse-item title="设备筛选 : >>>" name="1" > 
 					<div id ="choice">
 						<section id="section">
 							<!-- <nav id="choose">
@@ -35,120 +36,205 @@
 									<a href="javascript:;">x</a>
 								</mark>
 							</nav> -->
-							<ul id="type">
-								<li >
-									{{dataList[0].title}}:  
-									<template>
+							<ul id="type" v-if="dataList !==null">
+								<li>
+									{{dataList[0].title}}:
+									<template >
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll0" @change="allchannge0" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll0" @change="allchannge0" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="queryInfo.filter_list.brand" @change="singleChange0">
-											<el-checkbox v-for="value in dataList[0].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox  v-for="(value,index) in dataList[0].list" :label="value" :key="value"  v-show="isOpen|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
-									</template>						
+										<el-button v-show="!isOpen && dataList[0].list.length>Max" @click="isOpen =!isOpen" type="text">展开 </el-button>
+										<el-button v-show="isOpen && dataList[0].list.length>Max" @click="isOpen =!isOpen"  type="text">收起 </el-button>
+									</template>							
+									<!-- <a v-for="(value,j) in item.list"  :key="j" href="javascript:;" v-bind:class="{active:item.index===j}" @click="showFn(value,i,j)">
+									{{value}}    
+									</a> -->
 								</li>
 							<li >
 									{{dataList[1].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll1" @change="allchannge1" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll1" @change="allchannge1" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="android" @change="singleChange1">
-											<el-checkbox v-for="value in dataList[1].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox :disabled="show2" v-for="(value,index) in dataList[1].list" :label="value" :key="value"  v-show="isOpen1|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
+										<el-button v-show="!isOpen1 && dataList[1].list.length>Max" @click="isOpen1 =!isOpen1" type="text">展开 </el-button>
+										<el-button v-show="isOpen1 && dataList[1].list.length>Max" @click="isOpen1 =!isOpen1"  type="text">收起 </el-button>
 									</template>							
 								</li>
 							<li >
 									{{dataList[2].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll2" @change="allchannge2" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll2" @change="allchannge2" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="ios" @change="singleChange2">
-											<el-checkbox v-for="value in dataList[2].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox :disabled="show3" v-for="(value,index) in dataList[2].list" :label="value" :key="value"  v-show="isOpen2|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
+										<el-button v-show="!isOpen2 && dataList[2].list.length>Max" @click="isOpen2 =!isOpen2" type="text">展开 </el-button>
+										<el-button v-show="isOpen2 && dataList[2].list.length>Max" @click="isOpen2 =!isOpen2"  type="text">收起 </el-button>
 									</template>							
 								</li>
 							<li >
-									{{dataList[3].title}}:  
-									<template>
-									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll3" @change="allchannge3" >全选</el-checkbox>
+								<!-- CPU -->
+									{{dataList[3].title}}: 	
+									<template class="filter">
+										<span>高通: </span>
 										<el-checkbox-group v-model="queryInfo.filter_list.cpu" @change="singleChange3">
-											<el-checkbox v-for="value in dataList[3].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox  v-for="(value,index) in dataList[3].dict.gt" :label="value" :key="value" v-show="isOpen3|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
-									</template>							
+										<el-button v-show="!isOpen3 && dataList[3].dict.gt.length>Max" @click="isOpen3 =!isOpen3" type="text">展开 </el-button>
+										<el-button v-show="isOpen3 && dataList[3].dict.gt.length>Max" @click="isOpen3 =!isOpen3"  type="text">收起 </el-button>									
+									</template>	
+									<div></div>
+									<template>
+										<span style="margin-left:35px">麒麟: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.cpu" @change="singleChange3">
+											<el-checkbox  v-for="(value,index) in dataList[3].dict.hw" :label="value" :key="value" v-show="isOpen31|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen31 && dataList[3].dict.hw.length>Max" @click="isOpen31 =!isOpen31" type="text">展开 </el-button>
+										<el-button v-show="isOpen31 && dataList[3].dict.hw.length>Max" @click="isOpen31 =!isOpen31"  type="text">收起 </el-button>									
+									</template>	
+									<div></div>
+									<template>
+										<span style="margin-left:35px">苹果: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.cpu" @change="singleChange3">
+											<el-checkbox  v-for="(value,index) in dataList[3].dict.pg" :label="value" :key="value" v-show="isOpen32|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen32 && dataList[3].dict.pg.length>Max" @click="isOpen32 =!isOpen32" type="text">展开 </el-button>
+										<el-button v-show="isOpen32 && dataList[3].dict.pg.length>Max" @click="isOpen32 =!isOpen32"  type="text">收起 </el-button>									
+									</template>	
+									<div></div>
+									<template>
+										<span style="margin-left:35px">其他: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.cpu" @change="singleChange3">
+											<el-checkbox  v-for="(value,index) in dataList[3].dict.qt" :label="value" :key="value" v-show="isOpen33|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen33 && dataList[3].dict.qt.length>Max" @click="isOpen33 =!isOpen33" type="text">展开 </el-button>
+										<el-button v-show="isOpen33 && dataList[3].dict.qt.length>Max" @click="isOpen33 =!isOpen33"  type="text">收起 </el-button>									
+									</template>																												
+
 								</li>
+								<!-- GPU -->
 							<li >
 									{{dataList[4].title}}:  
 									<template>
-									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll4" @change="allchannge4" >全选</el-checkbox>
+										<span>Adreno: </span>
 										<el-checkbox-group v-model="queryInfo.filter_list.gpu" @change="singleChange4">
-											<el-checkbox v-for="value in dataList[4].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox v-for="(value,index) in dataList[4].dict.gt" :label="value" :key="value"  v-show="isOpen4|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
-									</template>							
+										<el-button v-show="!isOpen4 && dataList[4].dict.gt.length>Max" @click="isOpen4 =!isOpen4" type="text">展开 </el-button>
+										<el-button v-show="isOpen4 && dataList[4].dict.gt.length>Max" @click="isOpen4 =!isOpen4"  type="text">收起 </el-button>
+									</template>		
+									<div></div>
+									<template>
+										<span style="margin-left:35px">Mali: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.gpu" @change="singleChange4">
+											<el-checkbox v-for="(value,index) in dataList[4].dict.arm" :label="value" :key="value"  v-show="isOpen41|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen41 && dataList[4].dict.arm.length>Max" @click="isOpen41 =!isOpen41" type="text">展开 </el-button>
+										<el-button v-show="isOpen41 && dataList[4].dict.arm.length>Max" @click="isOpen41 =!isOpen41"  type="text">收起 </el-button>
+									</template>	
+									<div></div>
+									<template>
+										<span style="margin-left:35px">ios: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.gpu" @change="singleChange4">
+											<el-checkbox v-for="(value,index) in dataList[4].dict.pg" :label="value" :key="value"  v-show="isOpen42|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen42 && dataList[4].dict.pg.length>Max" @click="isOpen42 =!isOpen42" type="text">展开 </el-button>
+										<el-button v-show="isOpen42 && dataList[4].dict.pg.length>Max" @click="isOpen42 =!isOpen42"  type="text">收起 </el-button>
+									</template>	
+									<div></div>
+									<template>
+										<span style="margin-left:35px">PowerVR: </span>
+										<el-checkbox-group v-model="queryInfo.filter_list.gpu" @change="singleChange4">
+											<el-checkbox v-for="(value,index) in dataList[4].dict.img" :label="value" :key="value"  v-show="isOpen43|| index < Max">{{value}}</el-checkbox>
+										</el-checkbox-group>
+										<el-button v-show="!isOpen43 && dataList[4].dict.img.length>Max" @click="isOpen43 =!isOpen43" type="text">展开 </el-button>
+										<el-button v-show="isOpen43 && dataList[4].dict.img.length>Max" @click="isOpen43 =!isOpen43"  type="text">收起 </el-button>
+									</template>																																	
 								</li>
 							<li >
 									{{dataList[5].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll5" @change="allchannge5" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll5" @change="allchannge5" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="queryInfo.filter_list.ram" @change="singleChange5">
-											<el-checkbox v-for="value in dataList[5].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox v-for="(value,index) in dataList[5].list" :label="value" :key="value"  v-show="isOpen5|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
+										<el-button v-show="!isOpen5 && dataList[5].list.length>Max" @click="isOpen5 =!isOpen5" type="text">展开 </el-button>
+										<el-button v-show="isOpen5 && dataList[5].list.length>Max" @click="isOpen5 =!isOpen5"  type="text">收起 </el-button>
 									</template>							
 								</li>
 							<li >
 									{{dataList[6].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll6" @change="allchannge6" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll6" @change="allchannge6" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="queryInfo.filter_list.screen" @change="singleChange6">
-											<el-checkbox v-for="value in dataList[6].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox v-for="(value,index) in dataList[6].list" :label="value" :key="value"  v-show="isOpen6|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
+										<el-button v-show="!isOpen6 && dataList[6].list.length>Max" @click="isOpen6 =!isOpen6" type="text">展开 </el-button>
+										<el-button v-show="isOpen6 && dataList[6].list.length>Max" @click="isOpen6 =!isOpen6"  type="text">收起 </el-button>
 									</template>							
 								</li>
 							<li >
 									{{dataList[7].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll7" @change="allchannge7" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll7" @change="allchannge7" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="queryInfo.filter_list.resolution" @change="singleChange7">
-											<el-checkbox v-for="value in dataList[7].list" :label="value" :key="value">{{value}}</el-checkbox>
+											<el-checkbox v-for="(value,index) in dataList[7].list" :label="value" :key="value"  v-show="isOpen7|| index < Max">{{value}}</el-checkbox>
 										</el-checkbox-group>
+										<el-button v-show="!isOpen7 && dataList[7].list.length>Max" @click="isOpen7 =!isOpen7" type="text">展开 </el-button>
+										<el-button v-show="isOpen7 && dataList[7].list.length>Max" @click="isOpen7 =!isOpen7"  type="text">收起 </el-button>
 									</template>							
 								</li>
 							<li >
 									{{dataList[8].title}}:  
 									<template>
 									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
-									<el-checkbox id="i" :v-model="checkAll8" @change="allchannge8" >全选</el-checkbox>
+									<!-- <el-checkbox id="i" :v-model="checkAll8" @change="allchannge8" >全选</el-checkbox> -->
 										<el-checkbox-group v-model="queryInfo.filter_list.state" @change="singleChange8">
 											<el-checkbox v-for="value in dataList[8].list" :label="value" :key="value">{{value}}</el-checkbox>
 										</el-checkbox-group>
 									</template>							
-								</li>																																																						
+								</li>	
+							<li >
+									{{dataList[9].title}}:  
+									<template>
+									<!-- <el-checkbox :id=i indeterminate="isIndeterminate" v-model="checkAll" @change="channge1(i)" :checked='test11' a='tttt'>全选</el-checkbox> -->
+									<!-- <el-checkbox id="i" :v-model="checkAll8" @change="allchannge8" >全选</el-checkbox> -->
+										<el-checkbox-group v-model="queryInfo.filter_list.position" @change="singleChange9">
+											<el-checkbox v-for="value in dataList[9].list" :label="value" :key="value">{{value}}</el-checkbox>
+										</el-checkbox-group>
+									</template>							
+								</li>																																																					
 							</ul>
 						</section>
+						<div></div>
+						<el-button type="warning"  @click="rest" size="mini" style="margin-left:25px;margin-top:0px" >重置</el-button>
 					</div>
 				</el-collapse-item>
 			</el-collapse>	
 			<!-- 设备列表区 -->
-			<el-table :data="DevicesList" style="width: 100%" border stripe >
+			<el-table :data="DevicesList" style="width: 100%" @sort-change="sortEvent" border stripe >
 				<!-- 索引列 -->
 				<el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
 				<!-- <el-table-column prop="mobile" label="测试" sortable align="center"></el-table-column>                -->
-				<el-table-column prop="title" label="设备编号" sortable align="center" v-if="show"></el-table-column>
-				<el-table-column prop="name" label="设备名" sortable align="center"></el-table-column>
-				<el-table-column prop="udid" label="udid" sortable align="center" v-if="show"></el-table-column>
-				<el-table-column prop="brand" label="品牌" sortable align="center" ></el-table-column>
-				<el-table-column prop="resolution" label="分辨率" sortable align="center" ></el-table-column>
-				<el-table-column prop="screen" label="屏幕类型" sortable align="center" ></el-table-column>
-				<el-table-column prop="system" label="系统" sortable align="center"></el-table-column>
-				<el-table-column prop="cpu" label="CPU" sortable align="center"></el-table-column>
-				<el-table-column prop="gpu" label="GPU" sortable align="center" v-if="show"></el-table-column>
-				<el-table-column prop="ram" label="内存" sortable align="center"></el-table-column>
-				<el-table-column prop="platform" label="平台" sortable align="center" v-if="show"></el-table-column>
-				<el-table-column  label="状态" 
-				align="center">
+				<el-table-column prop="title" label="设备编号" sortable="custom" align="center"  v-if="show"></el-table-column>
+				<el-table-column prop="brand" label="品牌" sortable="custom"  align="center" ></el-table-column>
+				<el-table-column prop="name" label="设备名" sortable="custom" align="center"></el-table-column>
+				<el-table-column prop="udid" label="udid" sortable="custom" align="center" v-if="show"></el-table-column>
+				<el-table-column prop="resolution" label="分辨率" sortable="custom" align="center" ></el-table-column>
+				<el-table-column prop="screen" label="屏幕类型" sortable="custom" align="center" ></el-table-column>
+				<el-table-column prop="system" label="系统" sortable="custom" align="center"></el-table-column>
+				<el-table-column prop="cpu" label="CPU" sortable="custom" align="center"></el-table-column>
+				<el-table-column prop="gpu" label="GPU" sortable="custom" align="center" v-if="show"></el-table-column>
+				<el-table-column prop="ram" label="内存" sortable="custom" align="center"></el-table-column>
+				<el-table-column prop="platform" label="平台" sortable="custom" align="center" v-if="show"></el-table-column>
+				<el-table-column  label="状态" prop="state" sortable="custom" align="center">
 					<template slot-scope="scope">
 						<el-tag type="sucess" round v-if="scope.row.state==='在库'" effect="plain">在库</el-tag>
 						<el-tag type="info" round v-if="scope.row.state==='借出'"  effect="plain">借出</el-tag>
@@ -156,7 +242,7 @@
 						<el-tag type="danger" round v-if="scope.row.state==='锁定中'" effect="plain">锁定中</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="user_name" label="保管人" sortable align="center"></el-table-column>
+				<el-table-column prop="user_name" label="保管人" sortable="custom" align="center"></el-table-column>
 				<el-table-column  label="设备信息修改" align="center">
 					<template slot-scope="scope">
 					<el-button type="primary" round @click="UpdateDevice(scope.row)" >修改</el-button>
@@ -169,7 +255,7 @@
 				@size-change="handleSizeChange"
 				@current-change="handleCurrentChange"
 				:current-page="queryInfo.pagenum"
-				:page-sizes="[10, 30, 60, 90]"
+				:page-sizes="[30, 60, 120,240]"
 				:page-size="queryInfo.pagesize"
 				layout="total, sizes, prev, pager, next, jumper"
 				:total="total"
@@ -190,13 +276,19 @@
 				<el-form-item label="品牌">
 					<el-input v-model="AddNewDevices.brand"  style="width:15%"></el-input>
 				</el-form-item>
-				<el-form-item label="处理器">
+				<el-form-item label="CPU">
 					<el-input v-model="AddNewDevices.cpu"  style="width:15%"></el-input>
 				</el-form-item>
-				<el-form-item label="GPU">
+				<!-- <el-form-item label="GPU">
 					<el-input v-model="AddNewDevices.gpu"  style="width:15%"></el-input>
-				</el-form-item>
-				<el-form-item label="系统">
+				</el-form-item> -->
+				<el-form-item label="操作系统">
+					<el-select v-model="AddNewDevices.platform" placeholder="请选择系统">
+						<el-option label="Android" value="2"></el-option>
+						<el-option label="IOS" value="1"></el-option>
+						</el-select>
+				</el-form-item>  
+				<el-form-item label="系统版本">
 					<el-input v-model="AddNewDevices.system"  style="width:15%"></el-input>
 				</el-form-item>
 				<el-form-item label="分辨率">
@@ -204,22 +296,18 @@
 				</el-form-item>
 				<el-form-item label="屏幕类型">
 					<el-select v-model="AddNewDevices.screen" placeholder="请选择屏幕类型">
-						<el-option label="水滴屏" value="水滴屏"></el-option>
-						<el-option label="曲面屏" value="曲面屏"></el-option>
-						<el-option label="普通屏" value="普通屏"></el-option>
-						<el-option label="刘海屏" value="刘海屏"></el-option>
-						<el-option label="全面屏" value="全面屏"></el-option>
-						</el-select>
+						<el-option label="水滴屏" value="3"></el-option>
+						<el-option label="曲面屏" value="1"></el-option>
+						<el-option label="普通屏" value="0"></el-option>
+						<el-option label="刘海屏" value="2"></el-option>
+						<el-option label="全面屏" value="5"></el-option>
+						<el-option label="针孔屏" value="4"></el-option>
+						<el-option label="折叠屏" value="6"></el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="运行内存">
 					<el-input v-model="AddNewDevices.ram"  style="width:15%"></el-input>
-				</el-form-item>
-				<el-form-item label="平台">
-					<el-select v-model="AddNewDevices.platform" placeholder="请选择平台">
-						<el-option label="Android" value="android"></el-option>
-						<el-option label="ios" value="ios"></el-option>
-						</el-select>
-				</el-form-item>                              
+				</el-form-item>                            
             <div style="text-align:center">
                 <el-button type="primary"  round @click="submitForm">提交</el-button>
 				<el-button type="primary" round @click="cancelsubmitForm" >取消</el-button>
@@ -231,49 +319,13 @@
 
 
 <script>
-    const DeviceType = [
-               { 
-                title:"品牌",
-                list:["苹果","小米","华为","三星","OPPO","vivo","魅族","红米","一加"]
-                },
-               { 
-                title:"android系统",
-                list:["Android10","Android9","Android8","Android7","Android6","Android5","Android4"]
-				},
-          		{ 
-                title:"ios系统",
-                list:["ios13","ios12","ios11","ios10","ios9"]
-				},
-				{ 
-                title:"CPU",
-                list:["骁龙","麒麟","联发科","Exynos"]
-				},								
-               { 
-                title:"GPU",
-				list:["高通","Mali","IMG","PowerVR","ARM"]
-				},
-				{
-				title:"内存",
-                list:["8G","6G","4G","3G","2G"]
-				},						
-               { 
-                title:"屏幕类型",
-                list:["水滴屏","曲面屏","普通屏","刘海屏","全面屏"]
-				},
-               { 
-                title:"分辨率",
-				list:["1280x720","1080x1920","2556x1080","2340x1080","2460x1080","2560x1440",]
-                },				
-               { 
-                title:"状态",
-                list:["在库","借出","审批中","锁定中"]
-                },				
-			];
 export default {
+	inject:['reload'],
     // 接口获取后台设备列表
 	data() {
 		return {
-			//获取设备列表的参数对象
+			//每页显示条数
+			pagesize:0,
 			//筛选的安卓&ios系统
 			android:[],
 			ios:[],
@@ -294,6 +346,11 @@ export default {
 					"screen":[],
 					"resolution":[],
 					"state":[],
+					"position":[],
+					"sortData":{
+						"prop":'',
+						"order":'',
+					}
 				}
 			},
 			input: "",
@@ -316,19 +373,11 @@ export default {
 			// DateRules:{
 			//     date:{ validator: checkdate, trigger: 'blur' }
 			// }
-            dataList:DeviceType,
+			dataList:null,
 			show :false,
-			// test用
-			checkAll0:true,
-			checkAll1:true,
-			checkAll2:true,
-			checkAll3:true,
-			checkAll4:true,
-			checkAll5:true,
-			checkAll6:true,
-			checkAll7:true,
-			checkAll8:true,
-			//绑定折叠面板name
+			show1:false,
+			show2:false,
+			show3:false,
 			activenames:['1'],
 			// 修改设备面板
 			AddNewDevices: {
@@ -346,25 +395,57 @@ export default {
 				platform: ""
 			  },
 			ShowDeviceInfoDialog:false,
-			// 设备标识
+			// 筛选标签最大显示量
+			Max:8,
+			isOpen :false,
+			isOpen1 :false,
+			isOpen2 :false,
+			isOpen3 :false,
+			isOpen31 :false,
+			isOpen32 :false,
+			isOpen33 :false,
+			isOpen4 :false,
+			isOpen41 :false,
+			isOpen42 :false,
+			isOpen43 :false,		
+			isOpen5 :false,
+			isOpen6 :false,
+			isOpen7 :false,
+			
         };
 	},
 	created() {
 		//获取设备列表
 		// this.getUserList();
 		this.getDevicesList();
-		// this.Supply();
-        // this.Search();
-		// 处理设备筛选数据
+		// 获取筛选列表
+		this.getFilter();
 	},
 	methods: {
+		// 列文件排序
+		sortEvent(a){
+			if(a.order==null){
+				a.prop = null
+			}else if(a.order=="ascending"){
+				a.order = true
+			}else if(a.order=="descending"){
+				a.order = false
+			}
+			this.queryInfo.filter_list.sortData.prop=a.prop;
+			this.queryInfo.filter_list.sortData.order=a.order;
+			this.getDevicesList();
+		},
 		// 请求后台参数,并获取设备列表
 		async getDevicesList() {
 			// 获取设备信息、每条显示数、每页显示数
-			const { data: res } = await this.$http.get("equip_list", {
+			const { data: res } = await this.$http.get("approval_equip_list", {
 				params: this.queryInfo
 			});
 			if (res.meta.status !== 200) {
+				if(res.meta.status == 401){
+					this.$message.error("你还不是管理员");
+					return this.$router.push('./login')
+				}
 				return this.$message.error(res.meta.msg);
 			}
 			// 后台获取的设备列表渲染到前台
@@ -407,13 +488,11 @@ export default {
 			this.AddNewDevices.screen = data.screen
 			this.AddNewDevices.ram = data.ram
 			this.AddNewDevices.platform = data.platform
-			this.ShowDeviceInfoDialog=true
-	
-
+			this.ShowDeviceInfoDialog=true	
 		},
 		// 提交设备修改信息
 		async submitForm() {
-      		const { data: res } = await this.$http.get("equip_update", {
+      		const { data: res } = await this.$http.get("approval_equip_update", {
         	params: this.AddNewDevices
       		});
       		if (res.meta.status !== 200) {
@@ -421,8 +500,11 @@ export default {
 					this.$message.error("你还不是管理员");
 					return this.$router.push('./login')
 				}
-        	return this.$message.error("修改设备失败");
-      	}
+				if(res.meta.status ==208){
+					return this.$confirm(res.meta.msg)
+				}
+        		return this.$message.error("修改设备失败");
+      		}
 			this.$message.success("修改设备成功");
 			this.ShowDeviceInfoDialog=false,
 			this.getDevicesList()
@@ -432,110 +514,140 @@ export default {
 		cancelsubmitForm(){
 			this.ShowDeviceInfoDialog = false
 		},
-		//筛选方法
-			allchannge0(val) {
-				this.queryInfo.filter_list.brand = val ? this.dataList[0].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();
-			},
-			singleChange0(value) {
-				let checkedCount = value.length;
-				this.checkAll0 = checkedCount === this.dataList[0].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();
-			},
-			allchannge1(val) {
-				this.android = val ? this.dataList[1].list : [];
-				this.queryInfo.filter_list.system = this.android.concat(this.ios)
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange1(value) {
-				this.queryInfo.filter_list.system = this.android.concat(this.ios)
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			allchannge2(val) {
-				this.ios = val ? this.dataList[2].list : [];
-				this.queryInfo.filter_list.system = this.android.concat(this.ios)
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange2(value) {
-				this.queryInfo.filter_list.system = this.android.concat(this.ios)
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},				  
-			allchannge3(val) {
-				this.queryInfo.filter_list.cpu = val ? this.dataList[3].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange3(value) {
-				let checkedCount = value.length;
-				this.checkAll3 = checkedCount === this.dataList[3].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			allchannge4(val) {
-				this.queryInfo.filter_list.gpu = val ? this.dataList[4].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange4(value) {
-				let checkedCount = value.length;
-				this.checkAll4 = checkedCount === this.dataList[4].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			allchannge5(val) {
-				this.queryInfo.filter_list.ram = val ? this.dataList[5].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange5(value) {
-				let checkedCount = value.length;
-				this.checkAll5 = checkedCount === this.dataList[5].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			allchannge6(val) {
-				this.queryInfo.filter_list.screen = val ? this.dataList[6].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange6(value) {
-				let checkedCount = value.length;
-				this.checkAll6 = checkedCount === this.dataList[6].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
+//筛选方法
+		singleChange0(value) {
+			if(this.queryInfo.filter_list.brand.length==0){
+				this.getDevicesList()
+				return this.show2 = this.show3 =false
 
-			allchannge7(val) {
-				this.queryInfo.filter_list.resolution = val ? this.dataList[7].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange7(value) {
-				let checkedCount = value.length;
-				this.checkAll7 = checkedCount === this.dataList[7].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			allchannge8(val) {
-				this.queryInfo.filter_list.state = val ? this.dataList[8].list : [];
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-			singleChange8(value) {
-				let checkedCount = value.length;
-				this.checkAll8 = checkedCount === this.dataList[8].list.length;
-				this.queryInfo.pagenum=1
-				this.getDevicesList();			
-			},
-	}
+			}
+			if(this.queryInfo.filter_list.brand == "苹果"){
+				this.show2 = true
+				}else{
+					this.show2 = false
+				}
+			if(this.queryInfo.filter_list.brand.length!=0){
+				if(this.queryInfo.filter_list.brand.indexOf("苹果") == -1 ){
+					this.show3 =true
+				}else{
+					this.show3 = false
+				}
+			}
+			this.queryInfo.pagenum=1		
+			this.getDevicesList();
+		},
+		singleChange1(value) {
+			this.queryInfo.filter_list.system = this.android.concat(this.ios)
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		singleChange2(value) {
+			this.queryInfo.filter_list.system = this.android.concat(this.ios)
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},				  
+		singleChange3(value) {
+			// let checkedCount = value.length;
+			// this.checkAll3 = checkedCount === this.dataList[3].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		singleChange4(value) {
+			// let checkedCount = value.length;
+			// this.checkAll4 = checkedCount === this.dataList[4].list.length;
+			this.queryInfo.pagenum=1
+			this.show1 = true
+			this.getDevicesList();			
+		},
+		singleChange5(value) {
+			// let checkedCount = value.length;
+			// this.checkAll5 = checkedCount === this.dataList[5].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		singleChange6(value) {
+			// let checkedCount = value.length;
+			// this.checkAll6 = checkedCount === this.dataList[6].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+
+		singleChange7(value) {
+			// let checkedCount = value.length;
+			// this.checkAll7 = checkedCount === this.dataList[7].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		// allchannge8(val) {
+		// 	this.queryInfo.filter_list.state = val ? this.dataList[8].list : [];
+		// 	this.queryInfo.pagenum=1
+		// 	this.getDevicesList();			
+		// },
+		singleChange8(value) {
+			// let checkedCount = value.length;
+			// this.checkAll8 = checkedCount === this.dataList[8].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		singleChange9(value) {
+			// let checkedCount = value.length;
+			// this.checkAll8 = checkedCount === this.dataList[9].list.length;
+			this.queryInfo.pagenum=1
+			this.getDevicesList();			
+		},
+		// 重置筛选(刷新页面)
+		rest(){
+				  this.reload()	},
+// 获取筛选类列表
+		async getFilter(){
+			const{data:res} = await this.$http.get("get_fl_list");
+			var data= [];
+			data = res.data.dict.DeviceType;
+			// console.log(data[1])
+			data[1].list = this.CreatSort(data[1].list)
+			data[2].list = this.CreatSort(data[2].list)
+			data[5].list = this.CreatSort(data[5].list)
+			data[3].dict.pg = this.CreatSort(data[3].dict.pg)
+			this.dataList = data;
+			// console.log(this.dataList)
+			if(res.meta.status !==200){
+				return this.$message.error(res.meta.msg)
+			}
+		},
+		// 对筛选数据进行排序
+		paixu(){
+			this.DevicesList = this.DevicesList1;
+		},
+		// 排序方法
+		CreatSort(arr1){
+			var arr2=[]
+			for(var i=0;i<arr1.length;i++){
+				var m ;
+				m = arr1[i].replace(/[^\d]/g,"")
+				arr2[i]=Number(m)
+			}
+			// console.log(arr2)
+			for(var k=0;k<arr2.length-1;k++){	
+				for(var j=0;j<arr2.length-1-k;j++){
+					if(arr2[j]>= arr2[j+1]){					
+					}else{
+						var a;
+						a = arr2[j];
+						arr2[j] = arr2[j+1]
+						arr2[j+1] = a
+						var b;
+						b =arr1[j];
+						arr1[j]=arr1[j+1];
+						arr1[j+1]=b;
+					}
+				}
+			}
+			return arr1 
+		}
+	},
 };
 </script>
+
 
 <style lang="less" scoped>
 .nav {
@@ -551,75 +663,44 @@ export default {
 .el-checkbox-group{
 	display: inline;
 }
+.el-checkbox{
+	display:inline-block
+}
 #i{
 	margin-right: 20px
 }
 #choice {
     width: 100%;
-    height: 420px;
-    // background: url(img/bg.jpg) no-repeat 0 0;
+	height: auto;
+	padding-top:0px ;
+	margin-top: 0px;
+	// background: url(img/bg.jpg) no-repeat 0 0;
+	display:inline-block
 }
 #section {
     width: 100%px;
-    height: 405px;
-    box-shadow: 0px 0px 2px rgba(0,0,0,.2);
-    margin-bottom: 0px
-}
-#choose {
-    width: 100%;
-    height: 50px;
-    // background: url(img/nav_bg.png) no-repeat 0 0;
-    line-height: 50px;
-    text-indent: 21px;
+    height: auto;
+	margin-bottom: 0px;
+	padding-top:0px ;
+	display:inline-block
 }
 #type {
     width: 100%;
-    height: 210px;
+    height: auto;
     // background: url(img/type_bg.png) no-repeat 0 0;
     padding: 17px 0 16px 28px;
 	margin-top: 0 ;
-
+	display:inline-block
 	
 }
 #type li {
-    height: 44px;
+    height: auto;
     color: #8a8a8a;
-	line-height: 44px;
+	line-height: 35px;
 	list-style-type:none
 
 }
-#type a {
-    margin: 0 12px 0 11px;
-    color: rgb(105, 83, 83);
-	text-decoration:none;
-	font-family: Helvetica, Tahoma, Arial, "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei";
-}
-#choose mark {
-    position: relative;
-    display: inline-block;
-    height: 24px;
-    line-height: 24px;
-    border: 1px solid #00ff00;
-    color: #00ff00;
-    margin: 12px 5px 0;
-    background: none;
-    padding: 0 30px 0 6px;
-    text-indent: 0;
-}
-#choose mark a {
-    position: absolute;
-    top: 3px;
-    right: 2px;
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    background:  #00ff00;
-    color: #fff;
-    line-height: 18px;
-    font-size: 16px;
-    text-align: center;
-    text-decoration: none
-}
+
 .active {
     background:   #00ff00
 }

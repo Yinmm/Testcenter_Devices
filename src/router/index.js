@@ -12,6 +12,7 @@ import adminDevices_ios from "../components/Devices/adminDevices_ios.vue"
 import adminDevices_Android from "../components/Devices/adminDevices_Android.vue"
 import addnew from "../components/admin/addnew.vue"
 import checked from "../components/admin/checked.vue"
+import Vuecookies from 'vue-cookies'
 Vue.use(VueRouter)
 const routes = [
     {
@@ -61,7 +62,7 @@ router.beforeEach((to, from, next) => {
 //     //  next（）放行   next('/login') 强制跳转
     if (to.path == '/login') return next();
 //     //获取token值
-    const tokenStr = window.sessionStorage.getItem('token')
+    const tokenStr = Vuecookies.get('token');
     if (!tokenStr) return next('/login')
     next()
 })
